@@ -9,28 +9,20 @@ class Color:
 	CYAN = "\u001b[36m"
 	WHITE = "\u001b[37m"
 
+	BRED = "\u001b[31;1m"
 	BYELLOW = "\u001b[33;1m"
+	BBLUE = "\u001b[34;1m"
+
+	BACKBLUE = "\u001b[44m"
+
+	DIM = "\u001b[2m"
 
 	RESET = "\u001b[0m"
 
-TODOS = [{
-	"name": "Homework Computer Science",
-	"due": "WE 20:52",
-	"left": "2d11h"
-},{
-	"name": "Preparing next Lecture",
-	"due": "FR 09:13",
-	"left": "5d9h"
-}]
-
-
-class Output:
+	@staticmethod
+	def reset():
+		return "\u001b[0m\u001b[37m"
 
 	@staticmethod
-	def todos():
-		"""
-		prints all todos
-		"""
-		for entry in TODOS:
-			print(f"{Color.RED}[ ]{Color.WHITE} {entry['name']}\t{entry['due']} {Color.BYELLOW}({entry['left']}){Color.RESET}")
-		
+	def striken(text):
+		return ''.join(t+chr(822) for t in text)
