@@ -42,18 +42,18 @@ class Controller:
 
 	def add_event(self, title, day, timeFromTo, freq):
 		logger.info('cmd: event')
+		t = timeFromTo.split('-')
+		t1 = t[0].split(':')
+		t2 = t[1].split(':')
 		if freq == 'w':
-			t = timeFromTo.split('-')
-			t1 = t[0].split(':')
-			t2 = t[1].split(':')
 			self.db.new_event(title, self.intdays[day], t1[0], t1[1], t2[0], t2[1], freq)
 		else:
 			raise NotImplementedError
 
 	def add_task(self, title, day, time, freq):
 		logger.info('cmd: task')
+		t = time.split(':')
 		if freq == 'w':
-			t = time.split(':')
 			self.db.new_task(title, self.intdays[day], t[0], t[1], freq)
 		else:
 			raise NotImplementedError
