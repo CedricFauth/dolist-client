@@ -25,17 +25,26 @@ class Database:
 		
 	def create_new_db(self):
 		logger.info("creating database...")
-		create_event_table = """ CREATE TABLE event (
-			id integer PRIMARY KEY,
-			name title NOT NULL,
-			begin_date text,
-			end_date text
+		create_event_table = """ CREATE TABLE events (
+			id integer PRIMARY KEY autoincrement,
+			title text NOT NULL,
+			day integer NOT NULL,
+			start_hour integer NOT NULL,
+			start_minute integer NOT NULL,
+			end_hour integer NOT NULL,
+			end_minute integer NOT NULL,
+			freq text NOT NULL,
+			date text
 			); """
-		create_task_table = """ CREATE TABLE task (
-			id integer PRIMARY KEY,
-			name title NOT NULL,
-			begin_date text,
-			end_date text
+		create_task_table = """ CREATE TABLE tasks (
+			id integer PRIMARY KEY autoincrement,
+			title text NOT NULL,
+			day integer NOT NULL,
+			hour integer NOT NULL,
+			minute integer NOT NULL,
+			freq text NOT NULL,
+			date text,
+			done integer
 			); """
 		try:
 			c = self.conn.cursor()
@@ -44,6 +53,24 @@ class Database:
 		except Exception as e:
 			logging.ERROR(e)
 
+	def new_event(self, title, day, s_h, s_m, e_h, e_m, freq, date=None):
+		sql = ''' INSERT INTO events 
+		(title,day,start_hour,start_minute,end_hour,end_minute,freq,date)
+        VALUES(?,?,?,?,?,?,?,?) '''
+		cur = self.conn.cursor()
+		cur.execute(sql, (title, day, s_h, s_m, e_h, e_m, freq, date))
+		self.conn.commit()
+		return cur.lastrowid
+
+	def new_task(self, title, day, hour, minute, freq, date=None, done=0):
+		sql = ''' INSERT INTO tasks (title,day,hour,minute,freq,date,done)
+        VALUES(?,?,?,?,?,?,?) '''
+		cur = self.conn.cursor()
+		cur.execute(sql, (title, day, hour, minute, freq, date, done))
+		self.conn.commit()
+		logger.debug(cur.lastrowid)
+		return cur.lastrowid
+		
 
 	def close(self):
 		if self.conn:

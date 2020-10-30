@@ -29,14 +29,16 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
 
 class CLI_Parser:
+
 	def __init__(self):
+		self.days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
 		# init parser
 		self.parser = argparse.ArgumentParser('dolist client')
 		self.subparsers = self.parser.add_subparsers(dest="cmd")
 		# event args
 		self.e_parser = self.subparsers.add_parser('event', help='add an event (event -h)')
 		self.e_parser.add_argument('title', type=str, action='store', help='event title')
-		self.e_parser.add_argument('-d', type=str, action='store', required=True, help='weekday')
+		self.e_parser.add_argument('-d', type=str, action='store', required=True, help='weekday', choices=self.days)
 		self.e_parser.add_argument('-t', type=str, action='store', required=True, help='time period HH:MM-HH:MM')
 		self.e_parser.add_argument('-f', type=str, action='store', required=True, help='frequency')
 		# task args
