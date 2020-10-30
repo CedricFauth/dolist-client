@@ -60,6 +60,7 @@ class Database:
 		cur = self.conn.cursor()
 		cur.execute(sql, (title, day, s_h, s_m, e_h, e_m, freq, date))
 		self.conn.commit()
+		logger.info(f'inserted: {cur.lastrowid}')
 		return cur.lastrowid
 
 	def new_task(self, title, day, hour, minute, freq, date=None, done=0):
@@ -68,7 +69,7 @@ class Database:
 		cur = self.conn.cursor()
 		cur.execute(sql, (title, day, hour, minute, freq, date, done))
 		self.conn.commit()
-		logger.debug(cur.lastrowid)
+		logger.info(f'inserted: {cur.lastrowid}')
 		return cur.lastrowid
 		
 

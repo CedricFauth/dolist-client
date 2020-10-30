@@ -42,19 +42,16 @@ class Controller:
 
 	def add_event(self, title, day, timeFromTo, freq):
 		logger.info('cmd: event')
-		t = timeFromTo.split('-')
-		t1 = t[0].split(':')
-		t2 = t[1].split(':')
 		if freq == 'w':
-			self.db.new_event(title, self.intdays[day], t1[0], t1[1], t2[0], t2[1], freq)
+			args = Dataparser.parse_event(title, day, timeFromTo, freq)
+			self.db.new_event(*args) # tupel to parameters (*) 
 		else:
 			raise NotImplementedError
 
 	def add_task(self, title, day, time, freq):
-		logger.info('cmd: task')
-		t = time.split(':')
 		if freq == 'w':
-			self.db.new_task(title, self.intdays[day], t[0], t[1], freq)
+			args = Dataparser.parse_task(title, day, time, freq)
+			self.db.new_task(*args) # tupel to parameters (*) 
 		else:
 			raise NotImplementedError
 
@@ -72,17 +69,12 @@ class Controller:
 def main():
 	p = CLI_Parser()
 
-	#if p.args.cmd and (p.args.le or p.args.lt or p.args.re or p.args.rt):
-	#	print(f"You cannot use {p.args.cmd} here.")
-	#	return 0
-	
 	c = Controller()
-
 	if p.args.cmd == None:
 		c.show_overview()
-	elif p.args.cmd == 'event':
+	elif p.args.cmd == 'event' and Dataparser.validate(p.args):
 		c.add_event(p.args.title, p.args.d, p.args.t, p.args.f)
-	elif p.args.cmd == 'task':
+	elif p.args.cmd == 'task' and Dataparser.validate(p.args):
 		c.add_task(p.args.title, p.args.d, p.args.t, p.args.f)
 	elif p.args.cmd == 'rm' and p.args.t:
 			c.remove_by_id(p.args.id, 't')
@@ -90,8 +82,6 @@ def main():
 			c.remove_by_id(p.args.id, 'e')
 	elif p.args.cmd == 'ls':
 		c.list_ids()
-	else:
-		print("Error: Unknown Error - Please report.")
 	
 	c.exit()
 
