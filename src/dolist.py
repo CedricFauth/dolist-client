@@ -23,28 +23,35 @@ SOFTWARE.
 '''
 
 from parser import CLI_Parser
-from data import Database
+from database import Database
+import logging
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.DEBUG)
 
 def main():
-	d = Database()
-	d.close()
 	p = CLI_Parser()
+	
 	if p.args.cmd and (p.args.le or p.args.lt or p.args.re or p.args.rt):
 		print(f"You cannot use {p.args.cmd} here.")
-	elif p.args.cmd == 'event':
-		print('event')
+		return 0
+	
+	d = Database()
+	d.close()
+	if p.args.cmd == 'event':
+		logger.info('cmd: event')
 	elif p.args.cmd == 'task':
-		print('task')
+		logger.info('cmd: task')
 	elif p.args.le:
-		print("le")
+		logger.info("cmd: le")
 	elif p.args.lt:
-		print("lt")
+		logger.info("cmd: lt")
 	elif p.args.re:
-		print(f're {p.args.re}')
+		logger.info(f'cmd: re {p.args.re}')
 	elif p.args.rt:
-		print(f'rt {p.args.rt}')
+		logger.info(f'cmd: rt {p.args.rt}')
 	else:
-		print('overview')
+		logger.info('cmd: showing overview')
 	
 	return 0
 	

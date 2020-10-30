@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 '''
  
-class Color:
+class Symbols:
 	BLACK = "\u001b[30m"
 	RED = "\u001b[31m"
 	GREEN = "\u001b[32m"
