@@ -48,3 +48,4 @@ class Database:
 	def close(self):
 		if self.conn:
 			self.conn.close()
+			logger.info("database closed")

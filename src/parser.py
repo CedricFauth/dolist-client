@@ -23,6 +23,10 @@ SOFTWARE.
 '''
 
 import argparse
+import logging
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.DEBUG)
 
 class CLI_Parser:
 	def __init__(self):
@@ -41,11 +45,20 @@ class CLI_Parser:
 		self.t_parser.add_argument('-d', type=str, action='store', required=True, help='weekday')
 		self.t_parser.add_argument('-t', type=str, action='store', required=True, help='time HH:MM')
 		self.t_parser.add_argument('-f', type=str, action='store', required=True, help='frequency')
+		# remove
+		self.rm_parser = self.subparsers.add_parser('rm', help='remove event or task')
+		self.rm_group = self.rm_parser.add_mutually_exclusive_group()
+		self.rm_group.add_argument('-e', action='store_true', help='remove event')
+		self.rm_group.add_argument('-t', action='store_true', help='remove task')
+		self.rm_parser.add_argument('id', type=int, action='store', help='id of event/task')
+		# list
+		self.ls_parser = self.subparsers.add_parser('ls', help='list all id\'s')
 		# other args
-		self.group = self.parser.add_mutually_exclusive_group()
-		self.group.add_argument('-le', action='store_true', help='list events')
-		self.group.add_argument('-lt', action='store_true', help='list tasks')
-		self.group.add_argument('-re', type=int, action='store', help='remove events')
-		self.group.add_argument('-rt', type=int, action='store', help='remove tasks')
+		#self.group = self.parser.add_mutually_exclusive_group()
+		#self.group.add_argument('-le', action='store_true', help='list events')
+		#self.group.add_argument('-lt', action='store_true', help='list tasks')
+		#self.group.add_argument('-re', type=int, action='store', help='remove events')
+		#self.group.add_argument('-rt', type=int, action='store', help='remove tasks')
 		# parse
 		self.args = self.parser.parse_args()
+		logger.debug(self.args)
