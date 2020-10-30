@@ -23,9 +23,11 @@ SOFTWARE.
 '''
 
 from parser import CLI_Parser
-
+from data import Database
 
 def main():
+	d = Database()
+	d.close()
 	p = CLI_Parser()
 	if p.args.cmd and (p.args.le or p.args.lt or p.args.re or p.args.rt):
 		print(f"You cannot use {p.args.cmd} here.")
