@@ -73,7 +73,7 @@ def main():
 	elif p.args.cmd == 'ls':
 		c.list_ids()
 	else:
-		print("Error: unknown/missing arguments")
+		print("Error: Unknown Error - Please report.")
 	
 	c.exit()
 

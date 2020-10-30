@@ -47,7 +47,7 @@ class CLI_Parser:
 		self.t_parser.add_argument('-f', type=str, action='store', required=True, help='frequency')
 		# remove
 		self.rm_parser = self.subparsers.add_parser('rm', help='remove event or task')
-		self.rm_group = self.rm_parser.add_mutually_exclusive_group()
+		self.rm_group = self.rm_parser.add_mutually_exclusive_group(required=True)
 		self.rm_group.add_argument('-e', action='store_true', help='remove event')
 		self.rm_group.add_argument('-t', action='store_true', help='remove task')
 		self.rm_parser.add_argument('id', type=int, action='store', help='id of event/task')
