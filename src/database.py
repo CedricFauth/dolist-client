@@ -24,6 +24,7 @@ SOFTWARE.
 
 import sqlite3
 from os import path
+from datetime import datetime
 import logging
 
 logger = logging.getLogger(__name__)
@@ -58,7 +59,9 @@ class Database:
 			end_hour integer NOT NULL,
 			end_minute integer NOT NULL,
 			freq text NOT NULL,
-			date text
+			date_d integer,
+			date_m integer,
+			date_y integer
 			); """
 		create_task_table = """ CREATE TABLE tasks (
 			id integer PRIMARY KEY autoincrement,
@@ -67,7 +70,9 @@ class Database:
 			hour integer NOT NULL,
 			minute integer NOT NULL,
 			freq text NOT NULL,
-			date text,
+			date_d integer,
+			date_m integer,
+			date_y integer,
 			done integer
 			); """
 		try:
@@ -77,25 +82,54 @@ class Database:
 		except Exception as e:
 			logging.ERROR(e)
 
-	def new_event(self, title, day, s_h, s_m, e_h, e_m, freq, date=None):
+	def new_event(self,title,day,s_h,s_m,e_h,e_m,freq,d_d=None,d_m=None,d_y=None):
 		sql = ''' INSERT INTO events 
-		(title,day,start_hour,start_minute,end_hour,end_minute,freq,date)
-        VALUES(?,?,?,?,?,?,?,?) '''
+		(title,day,start_hour,start_minute,end_hour,end_minute,freq,date_d,date_m,date_y)
+        VALUES(?,?,?,?,?,?,?,?,?,?); '''
 		cur = self.conn.cursor()
-		cur.execute(sql, (title, day, s_h, s_m, e_h, e_m, freq, date))
+		cur.execute(sql, (title, day, s_h, s_m, e_h, e_m, freq, d_d, d_m, d_y))
 		self.conn.commit()
 		logger.info(f'inserted: {cur.lastrowid}')
 		return cur.lastrowid
 
-	def new_task(self, title, day, hour, minute, freq, date=None, done=0):
-		sql = ''' INSERT INTO tasks (title,day,hour,minute,freq,date,done)
-        VALUES(?,?,?,?,?,?,?) '''
+	def new_task(self,title,day,hour,minute,freq,d_d=None,d_m=None,d_y=None,done=0):
+		sql = ''' INSERT INTO tasks 
+		(title,day,hour,minute,freq,date_d,date_m,date_y,done)
+        VALUES(?,?,?,?,?,?,?,?,?); '''
 		cur = self.conn.cursor()
-		cur.execute(sql, (title, day, hour, minute, freq, date, done))
+		cur.execute(sql, (title, day, hour, minute, freq, d_d, d_m, d_y, done))
 		self.conn.commit()
 		logger.info(f'inserted: {cur.lastrowid}')
 		return cur.lastrowid
+	
+	def get_overview_data(self):
+		#today = datetime.today()
+		#weekday = today.weekday()
+		sql1 = '''SELECT * FROM events WHERE (day = ? OR 
+		(date_d = ? AND date_m = ? AND date_y = ?);'''
 		
+	def get_id_list(self):
+		sql1 = '''SELECT * FROM events;'''
+		sql2 = '''SELECT * FROM tasks;'''
+
+		cur = self.conn.cursor()
+		cur2 = self.conn.cursor()
+		cur.execute(sql1)
+		cur2.execute(sql2)
+		event_rows = cur.fetchall()
+		task_rows = cur2.fetchall()
+
+		return (event_rows, task_rows, )
+
+	def delete_data(self, id, typ):
+		sql1 = 'DELETE FROM events WHERE id=? ;'
+		sql2 = 'DELETE FROM tasks WHERE id=? ;'
+		cur = self.conn.cursor()
+		if typ == 'e':
+			cur.execute(sql1, (id, ))
+		else:
+			cur.execute(sql2, (id, ))
+		self.conn.commit()
 
 	def close(self):
 		if self.conn:

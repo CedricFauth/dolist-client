@@ -33,38 +33,63 @@ logging.basicConfig(level=logging.DEBUG)
 class Controller:
 	def __init__(self):
 		self.db = Database()
-		self.intdays = {"mon" : 0, "tue" : 1, "wed" : 2, "thu" : 3,
-		"fri" : 4, "sat" : 5, "sun" : 6 }
 
 	def show_overview(self):
 		logger.info('cmd: show overview')
+		data = self.db.get_overview_data()
 		raise NotImplementedError
+		# DEBUG TODO remove
+		logger.debug("Events today")
+		for r in data[0]:
+			logger.debug(r)
+		logger.debug("All tasks")
+		for r in data[1]:
+			logger.debug(r)
+		# TODO process data
+		# TODO implement output
 
 	def add_event(self, title, day, timeFromTo, freq):
 		logger.info('cmd: event')
-		if freq == 'w':
+		if freq == 'w' or freq == 'weekly':
 			args = Dataparser.parse_event(title, day, timeFromTo, freq)
 			self.db.new_event(*args) # tupel to parameters (*) 
 		else:
+			# TODO implement
 			raise NotImplementedError
+		# TODO output message
+		print("Event added.")
 
 	def add_task(self, title, day, time, freq):
-		if freq == 'w':
+		if freq == 'w' or freq == 'weekly':
 			args = Dataparser.parse_task(title, day, time, freq)
 			self.db.new_task(*args) # tupel to parameters (*) 
 		else:
+			# TODO implement
 			raise NotImplementedError
+		# TODO output message
+		print("Task added.")
 
 	def list_ids(self):
 		logger.info(f'cmd: list_ids')
-		raise NotImplementedError
+		data = self.db.get_id_list()
+
+		# DEBUG TODO remove
+		logger.debug("Event IDs")
+		for r in data[0]:
+			logger.debug(r)
+		logger.debug("Task IDs")
+		for r in data[1]:
+			logger.debug(r)
+		# TODO process data
+		# TODO implement output
 
 	def remove_by_id(self, id, typ):
 		logger.info(f'cmd: remove_by_id -{typ} {id}')
-		raise NotImplementedError
+		self.db.delete_data(id, typ)
 
 	def exit(self):
 		self.db.close()
+
 
 def main():
 	p = CLI_Parser()
@@ -77,9 +102,9 @@ def main():
 	elif p.args.cmd == 'task' and Dataparser.validate(p.args):
 		c.add_task(p.args.title, p.args.d, p.args.t, p.args.f)
 	elif p.args.cmd == 'rm' and p.args.t:
-			c.remove_by_id(p.args.id, 't')
+		c.remove_by_id(p.args.id, 't')
 	elif p.args.cmd == 'rm' and p.args.e:
-			c.remove_by_id(p.args.id, 'e')
+		c.remove_by_id(p.args.id, 'e')
 	elif p.args.cmd == 'ls':
 		c.list_ids()
 	
