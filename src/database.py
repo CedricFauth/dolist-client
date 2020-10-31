@@ -54,25 +54,18 @@ class Database:
 			id integer PRIMARY KEY autoincrement,
 			title text NOT NULL,
 			day integer NOT NULL,
-			start_hour integer NOT NULL,
-			start_minute integer NOT NULL,
-			end_hour integer NOT NULL,
-			end_minute integer NOT NULL,
+			start_time text NOT NULL,
+			end_time text NOT NULL,
 			freq text NOT NULL,
-			date_d integer,
-			date_m integer,
-			date_y integer
+			date text
 			); """
 		create_task_table = """ CREATE TABLE tasks (
 			id integer PRIMARY KEY autoincrement,
 			title text NOT NULL,
 			day integer NOT NULL,
-			hour integer NOT NULL,
-			minute integer NOT NULL,
+			time text NOT NULL,
 			freq text NOT NULL,
-			date_d integer,
-			date_m integer,
-			date_y integer,
+			date text,
 			done integer
 			); """
 		try:
@@ -82,22 +75,22 @@ class Database:
 		except Exception as e:
 			logging.ERROR(e)
 
-	def new_event(self,title,day,s_h,s_m,e_h,e_m,freq,d_d=None,d_m=None,d_y=None):
+	def new_event(self,title,day,s_time,e_time,freq,date=None):
 		sql = ''' INSERT INTO events 
-		(title,day,start_hour,start_minute,end_hour,end_minute,freq,date_d,date_m,date_y)
-        VALUES(?,?,?,?,?,?,?,?,?,?); '''
+		(title,day,start_time,end_time,freq,date)
+        VALUES(?,?,?,?,?,?); '''
 		cur = self.conn.cursor()
-		cur.execute(sql, (title, day, s_h, s_m, e_h, e_m, freq, d_d, d_m, d_y))
+		cur.execute(sql, (title,day,s_time,e_time,freq,date,))
 		self.conn.commit()
 		logger.info(f'inserted: {cur.lastrowid}')
 		return cur.lastrowid
 
-	def new_task(self,title,day,hour,minute,freq,d_d=None,d_m=None,d_y=None,done=0):
+	def new_task(self,title,day,time,freq,date=None,done=0):
 		sql = ''' INSERT INTO tasks 
-		(title,day,hour,minute,freq,date_d,date_m,date_y,done)
-        VALUES(?,?,?,?,?,?,?,?,?); '''
+		(title,day,time,freq,date,done)
+        VALUES(?,?,?,?,?,?); '''
 		cur = self.conn.cursor()
-		cur.execute(sql, (title, day, hour, minute, freq, d_d, d_m, d_y, done))
+		cur.execute(sql, (title,day,time,freq,date,done,))
 		self.conn.commit()
 		logger.info(f'inserted: {cur.lastrowid}')
 		return cur.lastrowid
@@ -105,8 +98,9 @@ class Database:
 	def get_overview_data(self):
 		#today = datetime.today()
 		#weekday = today.weekday()
-		sql1 = '''SELECT * FROM events WHERE (day = ? OR 
-		(date_d = ? AND date_m = ? AND date_y = ?);'''
+		# TODO overthink
+		sql1 = '''SELECT * FROM events WHERE 
+		(day = ? AND date IS NULL) OR (date = ?);'''
 		
 	def get_id_list(self):
 		sql1 = '''SELECT * FROM events;'''

@@ -50,7 +50,7 @@ class Controller:
 
 	def add_event(self, title, day, timeFromTo, freq):
 		logger.info('cmd: event')
-		if freq == 'w' or freq == 'weekly':
+		if freq[0] == 'w':
 			args = Dataparser.parse_event(title, day, timeFromTo, freq)
 			self.db.new_event(*args) # tupel to parameters (*) 
 		else:
@@ -60,7 +60,7 @@ class Controller:
 		print("Event added.")
 
 	def add_task(self, title, day, time, freq):
-		if freq == 'w' or freq == 'weekly':
+		if freq[0] == 'w':
 			args = Dataparser.parse_task(title, day, time, freq)
 			self.db.new_task(*args) # tupel to parameters (*) 
 		else:

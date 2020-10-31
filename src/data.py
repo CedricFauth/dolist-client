@@ -41,11 +41,11 @@ class Dataparser():
 			print(f'ERROR: wrong day format {args.d}')
 			return False
 		if args.cmd == 'event':
-			if not re.match('^(0?[0-9]|1[0-9]|2[0-3]):[0-5][0-9]-(0?[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$', args.t):
+			if not re.match('^([0-1][0-9]|2[0-3]):[0-5][0-9]-([0-1][0-9]|2[0-3]):[0-5][0-9]$', args.t):
 				print(f'ERROR: wrong time format {args.t}')
 				return False
 		else:
-			if not re.match('^(0?[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$', args.t):
+			if not re.match('^([0-1][0-9]|2[0-3]):[0-5][0-9]$', args.t):
 				print(f'ERROR: wrong time format {args.t}')
 				return False
 		return True
@@ -57,9 +57,8 @@ class Dataparser():
 		'''
 		day = Dataparser.days_to_int[day]
 		t = timeFromTo.split('-')
-		t1 = t[0].split(':')
-		t2 = t[1].split(':')
-		return (title, day, t1[0], t1[1], t2[0], t2[1], freq, )
+		f = freq[0]
+		return (title, day, t[0], t[1], f, )
 
 	@staticmethod
 	def parse_task(title, day, time, freq):
@@ -67,5 +66,5 @@ class Dataparser():
 		task data gets prepared for database
 		'''
 		day = Dataparser.days_to_int[day]
-		t = time.split(':')
-		return (title, day, int(t[0]), int(t[1]), freq, )
+		f = freq[0]
+		return (title, day, time, f, )
