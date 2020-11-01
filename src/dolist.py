@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 '''
 
-from cli import CLI_Parser
+from cli import CLI_Parser, Output as Out
 from database import Database
 from data import Dataparser
 import logging
@@ -32,6 +32,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 class Controller:
 	def __init__(self):
+		Out.open()
 		self.db = Database()
 
 	def show_overview(self):
@@ -50,45 +51,35 @@ class Controller:
 
 	def add_event(self, title, day, timeFromTo, freq):
 		logger.info('cmd: event')
-		if freq[0] == 'w':
-			args = Dataparser.parse_event(title, day, timeFromTo, freq)
-			self.db.new_event(*args) # tupel to parameters (*) 
-		else:
-			# TODO implement
-			raise NotImplementedError
+
+		args = Dataparser.parse('e', title, day, timeFromTo, freq)
+		self.db.new_event(*args) # tupel to parameters (*) 
+
 		# TODO output message
-		print("Event added.")
+		Out.info("event added")
 
 	def add_task(self, title, day, time, freq):
-		if freq[0] == 'w':
-			args = Dataparser.parse_task(title, day, time, freq)
-			self.db.new_task(*args) # tupel to parameters (*) 
-		else:
-			# TODO implement
-			raise NotImplementedError
-		# TODO output message
-		print("Task added.")
+		logger.info('cmd: task')
+		args = Dataparser.parse('t', title, day, time, freq)
+		self.db.new_task(*args) # tupel to parameters (*) 
+		Out.info("task added")
 
 	def list_ids(self):
 		logger.info(f'cmd: list_ids')
 		data = self.db.get_id_list()
-
-		# DEBUG TODO remove
-		logger.debug("Event IDs")
-		for r in data[0]:
-			logger.debug(r)
-		logger.debug("Task IDs")
-		for r in data[1]:
-			logger.debug(r)
-		# TODO process data
-		# TODO implement output
+		Out.list_all(data[0], data[1])
 
 	def remove_by_id(self, id, typ):
 		logger.info(f'cmd: remove_by_id -{typ} {id}')
 		self.db.delete_data(id, typ)
+		if typ == 't':
+			Out.info(f"task {id} deleted")
+		elif typ == 'e':
+			Out.info(f"event {id} deleted")
 
 	def exit(self):
 		self.db.close()
+		Out.close()
 
 
 def main():

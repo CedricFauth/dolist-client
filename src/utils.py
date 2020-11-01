@@ -21,8 +21,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 '''
- 
-class Symbols:
+
+class Symbol:
 	BLACK = "\u001b[30m"
 	RED = "\u001b[31m"
 	GREEN = "\u001b[32m"
@@ -42,8 +42,14 @@ class Symbols:
 
 	RESET = "\u001b[0m"
 
+	ERR = "\u2717"
+	DONE = "\u2714"
+	BOX1 = "\u251C"
+	BOX2 = "\u2514"
+	BOX3 = "\u2500"
+
 	@staticmethod
-	def reset():
+	def default():
 		return "\u001b[0m\u001b[37m"
 
 	@staticmethod

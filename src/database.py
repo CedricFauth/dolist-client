@@ -53,7 +53,7 @@ class Database:
 		create_event_table = """ CREATE TABLE events (
 			id integer PRIMARY KEY autoincrement,
 			title text NOT NULL,
-			day integer NOT NULL,
+			day integer,
 			start_time text NOT NULL,
 			end_time text NOT NULL,
 			freq text NOT NULL,
@@ -62,7 +62,7 @@ class Database:
 		create_task_table = """ CREATE TABLE tasks (
 			id integer PRIMARY KEY autoincrement,
 			title text NOT NULL,
-			day integer NOT NULL,
+			day integer,
 			time text NOT NULL,
 			freq text NOT NULL,
 			date text,
@@ -75,7 +75,7 @@ class Database:
 		except Exception as e:
 			logging.ERROR(e)
 
-	def new_event(self,title,day,s_time,e_time,freq,date=None):
+	def new_event(self,title,day,s_time,e_time,freq,date):
 		sql = ''' INSERT INTO events 
 		(title,day,start_time,end_time,freq,date)
         VALUES(?,?,?,?,?,?); '''
@@ -85,7 +85,7 @@ class Database:
 		logger.info(f'inserted: {cur.lastrowid}')
 		return cur.lastrowid
 
-	def new_task(self,title,day,time,freq,date=None,done=0):
+	def new_task(self,title,day,time,freq,date,done=0):
 		sql = ''' INSERT INTO tasks 
 		(title,day,time,freq,date,done)
         VALUES(?,?,?,?,?,?); '''
@@ -101,6 +101,7 @@ class Database:
 		# TODO overthink
 		sql1 = '''SELECT * FROM events WHERE 
 		(day = ? AND date IS NULL) OR (date = ?);'''
+		raise NotImplementedError
 		
 	def get_id_list(self):
 		sql1 = '''SELECT * FROM events;'''

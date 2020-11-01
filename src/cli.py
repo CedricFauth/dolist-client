@@ -24,6 +24,7 @@ SOFTWARE.
 
 import argparse
 import logging
+from utils import Symbol as sym
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
@@ -54,12 +55,69 @@ class CLI_Parser:
 		self.rm_parser.add_argument('id', type=int, action='store', help='id of event/task')
 		# list
 		self.ls_parser = self.subparsers.add_parser('ls', help='list all id\'s')
-		# other args
-		#self.group = self.parser.add_mutually_exclusive_group()
-		#self.group.add_argument('-le', action='store_true', help='list events')
-		#self.group.add_argument('-lt', action='store_true', help='list tasks')
-		#self.group.add_argument('-re', type=int, action='store', help='remove events')
-		#self.group.add_argument('-rt', type=int, action='store', help='remove tasks')
+		
 		# parse
 		self.args = self.parser.parse_args()
 		logger.debug(self.args)
+
+class Output:
+
+	@staticmethod
+	def open():
+		print(sym.default(), end='', flush=True)
+	
+	@staticmethod
+	def close():
+		print(sym.RESET, end='', flush=True)
+
+	@staticmethod
+	def info(msg):
+		"""
+		prints an info text
+		"""
+		print(f' {sym.MAGENTA}{sym.DONE}{sym.default()} {msg}')
+	
+	@staticmethod
+	def error(msg):
+		"""
+		prints an error text
+		"""
+		print(f' {sym.RED}{sym.ERR}{sym.default()} {msg}')
+	
+	@staticmethod
+	def list_all(events, tasks):
+		out = f'{sym.CYAN}event [ID]  [TITLE]{"".join(" " for _ in range(49))}'
+		out += f'[FROM - TO]{sym.default()}'
+		le = len(events) - 1
+		lt = len(tasks) - 1
+		for i,e in enumerate(events):
+			title = Output.process_title(e[1], 55)
+			if i == le:
+				out += f'\n{sym.BOX2}{sym.BOX3*4}'
+			else:
+				out += f'\n{sym.BOX1}{sym.BOX3*4}' 
+			out += f' {"{:<3}".format(e[0])}   {title} {e[3]}-{e[4]}'
+		out += f'\n{sym.MAGENTA}task  [ID]  [TITLE]{"".join(" " for _ in range(55))}'
+		out += f'[DUE]{sym.default()}'
+		for i,t in enumerate(tasks):
+			title = Output.process_title(t[1], 61)
+			if i == lt:
+				out += f'\n{sym.BOX2}{sym.BOX3*4}'
+			else:
+				out += f'\n{sym.BOX1}{sym.BOX3*4}' 
+			out += f' {"{:<3}".format(t[0])}   {title} {t[3]}'
+		out += sym.default()
+		print(out)
+
+	@staticmethod
+	def process_title(title, max_len):
+		"""
+		shortens or extends a title to max_len
+		"""
+		if len(title) > max_len:
+			return title[:max_len - 3] + '...'
+		else:
+			return title + ''.join(' ' for _ in range(max_len-len(title)))
+
+		
+
