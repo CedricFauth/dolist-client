@@ -92,14 +92,18 @@ class Controller:
 
 
 def main():
+	# parse cli
 	p = CLI_Parser()
+
+	if not Dataparser.validate(p.args):
+		return 0
 
 	c = Controller()
 	if p.args.cmd == None:
 		c.show_overview()
-	elif p.args.cmd == 'event' and Dataparser.validate(p.args):
+	elif p.args.cmd == 'event':
 		c.add_event(p.args.title, p.args.d, p.args.t, p.args.f)
-	elif p.args.cmd == 'task' and Dataparser.validate(p.args):
+	elif p.args.cmd == 'task':
 		c.add_task(p.args.title, p.args.d, p.args.t, p.args.f)
 	elif p.args.cmd == 'rm' and p.args.t:
 		c.remove_by_id(p.args.id, 't')

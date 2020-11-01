@@ -34,26 +34,47 @@ class Dataparser():
 		'''
 		validates input values of the user
 		'''
-		if not re.match('^(w|weekly|d|daily|o|once)$', args.f):
-			print(f'ERROR: wrong frequency format {args.f}')
-			return False
-		if not re.match('^(mon|tue|wed|thur|fri|sat|sun)$', args.d):
-			print(f'ERROR: wrong day format {args.d}')
-			return False
-		if args.cmd == 'event':
-			if not re.match('^([0-1][0-9]|2[0-3]):[0-5][0-9]-([0-1][0-9]|2[0-3]):[0-5][0-9]$', args.t):
-				print(f'ERROR: wrong time format {args.t}')
+		# only need to validate if cmd is event or task
+		if args.cmd == 'event' or args.cmd == 'task':
+			# -t -d -f are available but -d is optional
+
+			# try to match -f w/o/d
+			if not re.match('^(w|weekly|d|daily|o|once)$', args.f):
+				print(f'ERROR: wrong frequency format {args.f}')
 				return False
-		else:
-			if not re.match('^([0-1][0-9]|2[0-3]):[0-5][0-9]$', args.t):
-				print(f'ERROR: wrong time format {args.t}')
-				return False
+			
+			# if daily: no date/day set
+			if args.f[0] == 'd':
+				if args.d != None:
+					print(f'ERROR: You cannot use -d here because the {args.cmd} is daily.')
+					return False
+			# if once: date YYYY-MM-DD needs to be set
+			elif args.f[0] == 'o':
+				if not args.d or not re.match('^((\d\d\d\d)-(0[1-9]|1[0-2])-(0[1-9]|(1|2)[0-9]|3[0-1]))$', args.d):
+					print(f'ERROR: wrong date format {args.d}')
+					return False
+			# if weekly: day needs to be set
+			else:
+				if not args.d or not re.match('^(mon|tue|wed|thur|fri|sat|sun)$', args.d):
+					print(f'ERROR: wrong day format {args.d}')
+					return False
+			
+			# if event try to match HH:MM-HH:MM
+			if args.cmd == 'event':
+				if not re.match('^([0-1][0-9]|2[0-3]):[0-5][0-9]-([0-1][0-9]|2[0-3]):[0-5][0-9]$', args.t):
+					print(f'ERROR: wrong time format {args.t}')
+					return False
+			# if event try to match HH:MM
+			else:
+				if not re.match('^([0-1][0-9]|2[0-3]):[0-5][0-9]$', args.t):
+					print(f'ERROR: wrong time format {args.t}')
+					return False
 		return True
 
 	@staticmethod
 	def parse_event(title, day, timeFromTo, freq):
 		'''
-		event data gets prepared for database
+		weekly event data gets prepared for database
 		'''
 		day = Dataparser.days_to_int[day]
 		t = timeFromTo.split('-')

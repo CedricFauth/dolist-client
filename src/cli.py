@@ -37,13 +37,13 @@ class CLI_Parser:
 		# event args
 		self.e_parser = self.subparsers.add_parser('event', help='add an event (event -h)')
 		self.e_parser.add_argument('title', type=str, action='store', help='event title')
-		self.e_parser.add_argument('-d', type=str, action='store', required=True, help='weekday')
+		self.e_parser.add_argument('-d', type=str, action='store', help='weekday or date')
 		self.e_parser.add_argument('-t', type=str, action='store', required=True, help='time period HH:MM-HH:MM')
 		self.e_parser.add_argument('-f', type=str, action='store', required=True, help='frequency')
 		# task args
 		self.t_parser = self.subparsers.add_parser('task', help='add a task (task -h)')
 		self.t_parser.add_argument('title', type=str, action='store', help='task title')
-		self.t_parser.add_argument('-d', type=str, action='store', required=True, help='weekday')
+		self.t_parser.add_argument('-d', type=str, action='store', help='weekday')
 		self.t_parser.add_argument('-t', type=str, action='store', required=True, help='time HH:MM')
 		self.t_parser.add_argument('-f', type=str, action='store', required=True, help='frequency')
 		# remove
