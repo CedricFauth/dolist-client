@@ -62,9 +62,15 @@ class CLI_Parser:
 
 class Output:
 
+	int_to_days = {None: '', 0: "mon", 1: "tue", 2: "wed", 3: "thu",
+		4: "fri", 5: "sat", 6: "sun"}
+	
+	char_to_freq = {'w': 'weekly', 'd': 'daily', 'o': 'once'}
+
 	@staticmethod
 	def open():
-		print(sym.default(), end='', flush=True)
+		# \033[2J\033[H clear screen
+		print(f'{sym.default()}', end='', flush=True)
 	
 	@staticmethod
 	def close():
@@ -89,31 +95,37 @@ class Output:
 	def list_all(events, tasks):
 		le = len(events) - 1
 		lt = len(tasks) - 1
-		event_head = f'{sym.CYAN}event [ID]  [TITLE]{"".join(" " for _ in range(49))}' + \
-			f'[FROM - TO]{sym.default()}'
-		task_head = f'\n{sym.MAGENTA}task  [ID]  [TITLE]{"".join(" " for _ in range(55))}' + \
-			f'[DUE]{sym.default()}'
+		event_head = f'{sym.CYAN}event [ID] [TITLE]{"".join(" " for _ in range(27))}' + \
+			f'[FREQ] [DAY] [DATE]     [FROM - TO]{sym.default()}'
+		task_head = f'\n{sym.MAGENTA}task  [ID] [TITLE]{"".join(" " for _ in range(33))}' + \
+			f'[FREQ] [DAY] [DATE]     [DUE]{sym.default()}'
 		out = event_head
 		for i,e in enumerate(events):
-			title = Output.process_title(e[1], 55)
+			title = Output.process_text(e[1], 33)
+			freq = Output.process_text(Output.char_to_freq[e[5]], 6)
+			day = Output.process_text(Output.int_to_days[e[2]], 5)
+			date = (e[6] if e[6] != None else '          ')
 			if i == le:
-				out += f'\n{sym.BOX2}{sym.BOX3*4}'
+				out += f'\n{sym.BOX2}{sym.BOX3*4} '
 			else:
-				out += f'\n{sym.BOX1}{sym.BOX3*4}' 
-			out += f' {"{:<3}".format(e[0])}   {title} {e[3]}-{e[4]}'
+				out += f'\n{sym.BOX1}{sym.BOX3*4} ' 
+			out += f'{Output.process_text(str(e[0]), 4)} {title} {freq} {day} {date} {e[3]}-{e[4]}'
 		out += task_head
 		for i,t in enumerate(tasks):
-			title = Output.process_title(t[1], 61)
+			title = Output.process_text(t[1], 39)
+			freq = Output.process_text(Output.char_to_freq[t[4]], 6)
+			day = Output.process_text(Output.int_to_days[t[2]], 5)
+			date = (t[5] if t[5] != None else '          ')
 			if i == lt:
-				out += f'\n{sym.BOX2}{sym.BOX3*4}'
+				out += f'\n{sym.BOX2}{sym.BOX3*4} '
 			else:
-				out += f'\n{sym.BOX1}{sym.BOX3*4}' 
-			out += f' {"{:<3}".format(t[0])}   {title} {t[3]}'
+				out += f'\n{sym.BOX1}{sym.BOX3*4} ' 
+			out += f'{Output.process_text(str(t[0]), 4)} {title} {freq} {day} {date} {t[3]}'
 		out += sym.default()
 		print(out, flush=True)
 
 	@staticmethod
-	def process_title(title, max_len):
+	def process_text(title, max_len):
 		"""
 		shortens or extends a title to max_len
 		"""
