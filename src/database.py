@@ -24,7 +24,7 @@ SOFTWARE.
 
 import sqlite3
 from os import path
-from datetime import datetime
+from datetime import datetime, date
 import logging
 
 logger = logging.getLogger(__name__)
@@ -96,12 +96,21 @@ class Database:
 		return cur.lastrowid
 	
 	def get_overview_data(self):
-		#today = datetime.today()
-		#weekday = today.weekday()
-		# TODO overthink
+
+		today = date.today()
+		weekday = today.weekday()
+
 		sql1 = '''SELECT * FROM events WHERE 
-		(day = ? AND date IS NULL) OR (date = ?);'''
-		raise NotImplementedError
+		(day = ? AND freq = 'w') OR (date = ?) OR (freq = 'd');'''
+		sql2 = '''SELECT * FROM tasks;'''
+		cur = self.conn.cursor()
+		cur2 = self.conn.cursor()
+		cur.execute(sql1, (weekday, today.isoformat()))
+		cur2.execute(sql2)
+		event_rows = cur.fetchall()
+		task_rows = cur2.fetchall()
+
+		return (event_rows, task_rows, )
 		
 	def get_id_list(self):
 		sql1 = '''SELECT * FROM events;'''

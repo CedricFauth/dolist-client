@@ -84,12 +84,16 @@ class Output:
 		"""
 		print(f' {sym.RED}{sym.ERR}{sym.default()} {msg}')
 	
+	# TODO SHOW ALL PARAMETERS
 	@staticmethod
 	def list_all(events, tasks):
-		out = f'{sym.CYAN}event [ID]  [TITLE]{"".join(" " for _ in range(49))}'
-		out += f'[FROM - TO]{sym.default()}'
 		le = len(events) - 1
 		lt = len(tasks) - 1
+		event_head = f'{sym.CYAN}event [ID]  [TITLE]{"".join(" " for _ in range(49))}' + \
+			f'[FROM - TO]{sym.default()}'
+		task_head = f'\n{sym.MAGENTA}task  [ID]  [TITLE]{"".join(" " for _ in range(55))}' + \
+			f'[DUE]{sym.default()}'
+		out = event_head
 		for i,e in enumerate(events):
 			title = Output.process_title(e[1], 55)
 			if i == le:
@@ -97,8 +101,7 @@ class Output:
 			else:
 				out += f'\n{sym.BOX1}{sym.BOX3*4}' 
 			out += f' {"{:<3}".format(e[0])}   {title} {e[3]}-{e[4]}'
-		out += f'\n{sym.MAGENTA}task  [ID]  [TITLE]{"".join(" " for _ in range(55))}'
-		out += f'[DUE]{sym.default()}'
+		out += task_head
 		for i,t in enumerate(tasks):
 			title = Output.process_title(t[1], 61)
 			if i == lt:
@@ -107,7 +110,7 @@ class Output:
 				out += f'\n{sym.BOX1}{sym.BOX3*4}' 
 			out += f' {"{:<3}".format(t[0])}   {title} {t[3]}'
 		out += sym.default()
-		print(out)
+		print(out, flush=True)
 
 	@staticmethod
 	def process_title(title, max_len):
@@ -118,6 +121,9 @@ class Output:
 			return title[:max_len - 3] + '...'
 		else:
 			return title + ''.join(' ' for _ in range(max_len-len(title)))
+
+	def overview():
+		pass
 
 		
 

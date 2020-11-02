@@ -38,7 +38,7 @@ class Controller:
 	def show_overview(self):
 		logger.info('cmd: show overview')
 		data = self.db.get_overview_data()
-		raise NotImplementedError
+
 		# DEBUG TODO remove
 		logger.debug("Events today")
 		for r in data[0]:
@@ -48,6 +48,7 @@ class Controller:
 			logger.debug(r)
 		# TODO process data
 		# TODO implement output
+		#Out.overview()
 
 	def add_event(self, title, day, timeFromTo, freq):
 		logger.info('cmd: event')
