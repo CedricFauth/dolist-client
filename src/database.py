@@ -66,7 +66,8 @@ class Database:
 			time text NOT NULL,
 			freq text NOT NULL,
 			date text,
-			done integer
+			done integer,
+			done_on text
 			); """
 		try:
 			c = self.conn.cursor()
@@ -115,6 +116,14 @@ class Database:
 		task_rows_done = cur.fetchall()
 
 		return (event_rows, task_rows_todo, task_rows_done)
+
+	def get_done_tasks(self):
+		sql1 = '''SELECT * FROM tasks
+		WHERE done = 1;'''
+		cur = self.conn.cursor()
+		cur.execute(sql1)
+		task_rows_done = cur.fetchall()
+		return task_rows_done
 		
 	def get_id_list(self):
 		sql1 = '''SELECT * FROM events;'''
@@ -136,6 +145,29 @@ class Database:
 			cur.execute(sql1, (id, ))
 		else:
 			cur.execute(sql2, (id, ))
+		self.conn.commit()
+
+	def get_task_by(self, id):
+		sql1 = '''SELECT * FROM tasks WHERE id = ?;'''
+		cur = self.conn.cursor()
+		cur.execute(sql1, (id, ))
+		return cur.fetchone()
+
+	def set_done(self, task_id, date):
+		sql1 = '''update tasks set done_on = ?,
+		done=1 where id = ?;'''
+		cur = self.conn.cursor()
+		cur.execute(sql1, (date, task_id, ))
+		self.conn.commit()
+		logger.info(f'updated: done=1 and done-date="{date}" at id {task_id}')
+
+	def reset_done(self, reset_id_list):
+		sql1 = '''UPDATE tasks SET done = 0 WHERE id = ?;'''
+		cur = self.conn.cursor()
+		print(reset_id_list)
+		for id in reset_id_list:
+			cur.execute(sql1, (id, ))
+			logger.info(f'reset: done=0 at id {id}')
 		self.conn.commit()
 
 	def close(self):

@@ -35,16 +35,18 @@ class Symbol:
 	BRED = "\u001b[31;1m"
 	BYELLOW = "\u001b[33;1m"
 	BBLUE = "\u001b[34;1m"
-
 	BACKBLUE = "\u001b[44m"
 
 	DIM = "\u001b[2m"
 
 	RESET = "\u001b[0m"
 
+	HLINE = "\u2500"
+
 	ARROW = "\u25B6"
 	ERR = "\u2717"
 	DONE = "\u2714"
+	MISSED = "\u2717"
 	BOX1 = "\u251C"
 	BOX2 = "\u2514"
 	BOX3 = "\u2500"

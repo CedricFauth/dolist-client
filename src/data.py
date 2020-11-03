@@ -104,36 +104,99 @@ class Dataparser():
 		while day.weekday() != weekday:
 			day += timedelta(1)
 		return day
+	
+	@staticmethod
+	def date_of_last_weekday(weekday):
+		day = date.today()
+		while day.weekday() != weekday:
+			day -= timedelta(1)
+		return day
 
 	@staticmethod
 	def delta_to_tupel(tdelta):
 		hours, rem = divmod(tdelta.seconds, 3600)
-		minutes = rem // 60 + 1
+		minutes = rem // 60 # + 1
 		return (tdelta.days, hours, minutes, )
 
 	@staticmethod
-	def process_tasks(tasks):
+	def prepare_out_events(events):
+		"""
+		creates list of events with additional attibs like 'time left'
+		"""
+		event_list = []
+		daytime = datetime.today()
+		day = date.today()
+		for e in events:
+			task_time = datetime.fromisoformat(f'{day.isoformat()} {e[3]}')
+			left = task_time - daytime
+			#print(f'{e[1]} : {Dataparser.delta_to_tupel(left)}')
+			event_list.append(e + Dataparser.delta_to_tupel(left))
+		return event_list
+		
+
+	@staticmethod
+	def prepare_out_tasks(tasks):
+		"""
+		creates list of tasks with additional attibs like 'time left'
+		"""
 		task_list = []
 		daytime = datetime.today()
 		day = date.today()
 		for t in tasks:
 			left = None
+			# info: stays missed until new day begins
 			if t[4] == 'd':
 				task_time = datetime.fromisoformat(f'{day.isoformat()} {t[3]}')
 				left = task_time - daytime
-				if left.days < 0:
-					left = left + timedelta(days=1)
+				# check if already done today
+				if left.days < 0 and t[7] != None:
+					if datetime.fromisoformat(t[7]) == task_time:
+						left = left + timedelta(days=1)
 			elif t[4] == 'w':
 				next_date = Dataparser.date_of_next_weekday(t[2])
 				task_time = datetime.fromisoformat(f'{next_date.isoformat()} {t[3]}')
 				left = task_time - daytime
+				# check if already done today
+				if left.days < 0 and t[7] != None:
+					if datetime.fromisoformat(t[7]) == task_time:
+						left = left + timedelta(days=7)
+			# stays missed forever until done
 			elif t[4] == 'o':
 				task_time = datetime.fromisoformat(f'{t[5]} {t[3]}')
 				left = task_time - daytime
 			task_list.append(t + Dataparser.delta_to_tupel(left))
 
 		def time_left_to_str(x):
-			x = int(f'{x[7]}{x[8]:02}{x[9]:02}')
-			return x
+			#if x[8] < 0:
+			#	y = int(f'{x[8]}{((x[9]*(-1) + 24) % 24):02}{x[10]:02}')
+			#else:
+			y = int(f'{x[8]}{x[9]:02}{x[10]:02}')
+			return y
 
 		return sorted(task_list, key=time_left_to_str)
+
+	@staticmethod
+	def get_reset_ids(tasks_done):
+		task_ids = []
+		daytime = datetime.today()
+		day = date.today()
+		for t in tasks_done:
+			left = None
+			if t[4] == 'd':
+				task_time = datetime.fromisoformat(f'{day.isoformat()} {t[3]}')
+				left = task_time - daytime
+				if left.days < 0:
+					#print(str(task_time)[:-3])
+					#if t[7] != None and t[7] == str(task_time)[:-3]:
+					#	logger.info('task for tomorrow already done')
+					#else:
+					logger.info(f'{t[1]} can be deleted')
+					task_ids.append(t[0])
+			elif t[4] == 'w':
+				last_done = datetime.fromisoformat(t[7])
+				if last_done < daytime:
+					logger.info(f'{t[1]} can be deleted')
+					task_ids.append(t[0])
+		return task_ids
+
+		# TODO task for next week/day cannot be done on last due day

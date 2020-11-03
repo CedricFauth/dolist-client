@@ -55,7 +55,9 @@ class CLI_Parser:
 		self.rm_parser.add_argument('id', type=int, action='store', help='id of event/task')
 		# list
 		self.ls_parser = self.subparsers.add_parser('ls', help='list all id\'s')
-		
+		# done
+		self.done_parser = self.subparsers.add_parser('done', help='mark a task as done\'s')
+		self.done_parser.add_argument('task_id', type=int, action='store', help='task ID')
 		# parse
 		self.args = self.parser.parse_args()
 		logger.debug(self.args)
@@ -101,31 +103,31 @@ class Output:
 			f'[FREQ] [DAY] [DATE]     [DUE]{sym.default()}'
 		out = event_head
 		for i,e in enumerate(events):
-			title = Output.process_text(e[1], 31)
-			freq = Output.process_text(Output.char_to_freq[e[5]], 6)
-			day = Output.process_text(Output.int_to_days[e[2]], 5)
+			title = Output.align_text_left(e[1], 31)
+			freq = Output.align_text_left(Output.char_to_freq[e[5]], 6)
+			day = Output.align_text_left(Output.int_to_days[e[2]], 5)
 			date = (e[6] if e[6] != None else '          ')
 			if i == le:
 				out += f'\n {sym.BOX2}{sym.BOX3*4} '
 			else:
 				out += f'\n {sym.BOX1}{sym.BOX3*4} ' 
-			out += f'{Output.process_text(str(e[0]), 4)} {title} {freq} {day} {date} {e[3]}-{e[4]}'
+			out += f'{Output.align_text_left(str(e[0]), 4)} {title} {freq} {day} {date} {e[3]}-{e[4]}'
 		out += task_head
 		for i,t in enumerate(tasks):
-			title = Output.process_text(t[1], 37)
-			freq = Output.process_text(Output.char_to_freq[t[4]], 6)
-			day = Output.process_text(Output.int_to_days[t[2]], 5)
+			title = Output.align_text_left(t[1], 37)
+			freq = Output.align_text_left(Output.char_to_freq[t[4]], 6)
+			day = Output.align_text_left(Output.int_to_days[t[2]], 5)
 			date = (t[5] if t[5] != None else '          ')
 			if i == lt:
 				out += f'\n {sym.BOX2}{sym.BOX3*4} '
 			else:
 				out += f'\n {sym.BOX1}{sym.BOX3*4} ' 
-			out += f'{Output.process_text(str(t[0]), 4)} {title} {freq} {day} {date} {t[3]}'
+			out += f'{Output.align_text_left(str(t[0]), 4)} {title} {freq} {day} {date} {t[3]}'
 		out += sym.default()
 		print(out, flush=True)
 
 	@staticmethod
-	def process_text(title, max_len):
+	def align_text_left(title, max_len):
 		"""
 		shortens or extends a title to max_len
 		"""
@@ -134,33 +136,81 @@ class Output:
 		else:
 			return title + ''.join(' ' for _ in range(max_len-len(title)))
 
+	@staticmethod
+	def align_text_right(title, max_len):
+		"""
+		shortens or extends a title to max_len
+		"""
+		if len(title) > max_len:
+			return '...' + title[-(max_len-3):]
+		else:
+			return ''.join(' ' for _ in range(max_len-len(title))) + title
+
+	@staticmethod
+	def format_time(days, hours, minutes):
+		if days < 0:
+			return 'missed!'
+		elif days == 0 and hours == 0:
+			return f'({minutes}m)'
+		elif days == 0:
+			return f'({hours}h{minutes}m)'
+		else:
+			return f'({days}d{hours}h{minutes}m)'
+
+	@staticmethod
+	def color_time(days, hours, minutes, time_string):
+		"""
+		colors a time string
+		"""
+		if days < 0:
+			return f'{sym.RED}{time_string}'
+		elif days == 0 and hours == 0:
+			return f'{sym.BRED}{time_string}'
+		elif days == 0:
+			return f'{sym.YELLOW}{time_string}'
+		else:
+			return f'{time_string}'
+
+	@staticmethod
 	def overview(events, tasks, tasks_done):
 
 		# TODO sym class \u2500...
 		# TODO more functions for 'left' + colors
 		# TODO less code per line
 
-		out = f'{sym.default()}{sym.CYAN}\u2500\u2500\u2500[ \u001b[1mToday\'s events{sym.default()}{sym.CYAN} ]' \
-			+ "".join("\u2500" for _ in range(0,59))
-		for i,e in enumerate(events):
+		out = f'{sym.default()}{sym.CYAN}{sym.HLINE*3}[ \u001b[1mToday\'s events{sym.default()}{sym.CYAN} ]' \
+			+ f'{sym.HLINE*59}'
+		i = 0
+		for e in events:
+			if e[7] < 0:
+				continue
 			if i == 0:
 				out += f'\n{sym.BLUE} {sym.ARROW} {sym.default()}'
 			else:
 				out += f'\n{sym.BLUE} {sym.ARROW} {sym.default()}{sym.DIM}'
-			out += f'{Output.process_text(e[1], 50)} [{e[5]}] {e[3]}-{e[4]}  (HHhMMm){sym.default()}'
-		
-		out += f'\n{sym.MAGENTA}\u2500\u2500\u2500[ \u001b[1mAll tasks{sym.default()}{sym.MAGENTA} ]' \
-			+ "".join("\u2500" for _ in range(0,63))
+			title = Output.align_text_left(e[1], 50)
+			time_left = Output.align_text_right(f'{Output.format_time(*e[7:10])}',9)
+			out += f'{title} [{e[5]}] {e[3]}-{e[4]} {time_left}{sym.default()}'
+			i += 1
+
+		out += f'\n{sym.MAGENTA}{sym.HLINE*3}[ \u001b[1mAll tasks{sym.default()}{sym.MAGENTA} ]' \
+			+ "".join("\u2500" for _ in range(0,64))
 		for i,t in enumerate(tasks):
-			weekday = Output.int_to_days[t[2]] if t[2] != None else '   '
-			left = f'{t[7]:02}d{t[8]:02}h{t[9]:02}m' if t[7] >= 0 else ' missed! '
-			out += f'\n{sym.RED} [ ]{sym.WHITE} {Output.process_text(t[1], 48)} [{t[4]}] ' \
-				+ f'{weekday} {t[3]} {sym.BRED}({left}){sym.default()}'
+			title = Output.align_text_left(t[1], 48)
+			weekday = Output.align_text_left(Output.int_to_days[t[2]], 3).upper()
+			time_left = Output.align_text_right(f'{Output.format_time(*t[8:11])}',11)
+			time_left = Output.color_time(*t[8:11], time_left)
+			mark = (' ', sym.WHITE, )
+			if t[8] < 0:
+				mark = (sym.MISSED, sym.RED)
+			out += f'\n{sym.RED} [{mark[0]}]{mark[1]} {title} [{t[4]}] ' \
+				+ f'{weekday} {t[3]} {time_left}{sym.default()}'
 
 		for i,t in enumerate(tasks_done):
-			weekday = Output.int_to_days[t[2]] if t[2] != None else '   '
-			left = f'{t[7]:02}d{t[8]:02}h{t[9]:02}m' if t[7] >= 0 else ' missed! '
-			out += f'\n{sym.GREEN} [{sym.DONE}]{sym.WHITE} {Output.process_text(t[1], 48)} [{t[4]}] ' \
-				+ sym.striken(f'{weekday} {t[3]} ({left})') + sym.default()
+			title = Output.align_text_left(t[1], 48)
+			weekday = Output.align_text_left(Output.int_to_days[t[2]], 3).upper()
+			time_left = Output.align_text_right(f'{Output.format_time(*t[8:11])}',11)
+			out += f'\n{sym.GREEN} [{sym.DONE}] {sym.default()}{title} [{t[4]}] ' \
+				+ sym.striken(f'{weekday} {t[3]} {time_left}') + sym.default()
 
 		print(out, flush=True)

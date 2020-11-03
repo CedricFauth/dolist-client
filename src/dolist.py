@@ -26,6 +26,7 @@ from cli import CLI_Parser, Output as Out
 from database import Database
 from data import Dataparser
 import logging
+from datetime import date, datetime
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
@@ -35,11 +36,21 @@ class Controller:
 		Out.open()
 		self.db = Database()
 
+	def reset_done_tasks(self):
+		data = self.db.get_done_tasks()
+		reset_id_list = Dataparser.get_reset_ids(data)
+		self.db.reset_done(reset_id_list)
+	
+	# TODO implement 'done' and set done_on (duedate + duetime)
+
 	def show_overview(self):
 		logger.info('cmd: show overview')
 		# TODO process_events
 		data = self.db.get_overview_data()
-		Out.overview(data[0], Dataparser.process_tasks(data[1]), Dataparser.process_tasks(data[2]))
+		e = Dataparser.prepare_out_events(data[0])
+		t = Dataparser.prepare_out_tasks(data[1])
+		td = Dataparser.prepare_out_tasks(data[2])
+		Out.overview(e, t, td)
 		# TODO implement 'done'
 
 	def add_event(self, title, day, timeFromTo, freq):
@@ -69,6 +80,20 @@ class Controller:
 		elif typ == 'e':
 			Out.info(f"event {id} deleted")
 
+	def done(self, id):
+		t = self.db.get_task_by(id)
+		print(t)
+		if not t:
+			Out.error(f'no task with id {id} found')
+			return 0
+		if t[4] == 'w':
+			next_date = Dataparser.date_of_next_weekday(t[2])
+			task_time = f'{next_date.isoformat()} {t[3]}'
+		else:
+			task_time = f'{date.today().isoformat()} {t[3]}'
+		logger.info(f'set done {id} with done-date "{task_time}"')
+		self.db.set_done(id, task_time)
+
 	def exit(self):
 		self.db.close()
 		Out.close()
@@ -82,6 +107,8 @@ def main():
 		return 0
 
 	c = Controller()
+	c.reset_done_tasks()
+
 	if p.args.cmd == None:
 		c.show_overview()
 	elif p.args.cmd == 'event':
@@ -94,6 +121,8 @@ def main():
 		c.remove_by_id(p.args.id, 'e')
 	elif p.args.cmd == 'ls':
 		c.list_ids()
+	elif p.args.cmd == 'done':
+		c.done(p.args.task_id)
 	
 	c.exit()
 
