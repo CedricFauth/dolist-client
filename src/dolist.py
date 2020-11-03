@@ -37,18 +37,10 @@ class Controller:
 
 	def show_overview(self):
 		logger.info('cmd: show overview')
+		# TODO process_events
 		data = self.db.get_overview_data()
-
-		# DEBUG TODO remove
-		logger.debug("Events today")
-		for r in data[0]:
-			logger.debug(r)
-		logger.debug("All tasks")
-		for r in data[1]:
-			logger.debug(r)
-		# TODO process data
-		# TODO implement output
-		#Out.overview()
+		Out.overview(data[0], Dataparser.process_tasks(data[1]), Dataparser.process_tasks(data[2]))
+		# TODO implement 'done'
 
 	def add_event(self, title, day, timeFromTo, freq):
 		logger.info('cmd: event')
@@ -56,7 +48,6 @@ class Controller:
 		args = Dataparser.parse('e', title, day, timeFromTo, freq)
 		self.db.new_event(*args) # tupel to parameters (*) 
 
-		# TODO output message
 		Out.info("event added")
 
 	def add_task(self, title, day, time, freq):

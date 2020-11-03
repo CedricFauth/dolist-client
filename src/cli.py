@@ -95,31 +95,31 @@ class Output:
 	def list_all(events, tasks):
 		le = len(events) - 1
 		lt = len(tasks) - 1
-		event_head = f'{sym.CYAN}event [ID] [TITLE]{"".join(" " for _ in range(27))}' + \
+		event_head = f'{sym.CYAN} event [ID] [TITLE]{"".join(" " for _ in range(25))}' + \
 			f'[FREQ] [DAY] [DATE]     [FROM - TO]{sym.default()}'
-		task_head = f'\n{sym.MAGENTA}task  [ID] [TITLE]{"".join(" " for _ in range(33))}' + \
+		task_head = f'\n{sym.MAGENTA} task  [ID] [TITLE]{"".join(" " for _ in range(31))}' + \
 			f'[FREQ] [DAY] [DATE]     [DUE]{sym.default()}'
 		out = event_head
 		for i,e in enumerate(events):
-			title = Output.process_text(e[1], 33)
+			title = Output.process_text(e[1], 31)
 			freq = Output.process_text(Output.char_to_freq[e[5]], 6)
 			day = Output.process_text(Output.int_to_days[e[2]], 5)
 			date = (e[6] if e[6] != None else '          ')
 			if i == le:
-				out += f'\n{sym.BOX2}{sym.BOX3*4} '
+				out += f'\n {sym.BOX2}{sym.BOX3*4} '
 			else:
-				out += f'\n{sym.BOX1}{sym.BOX3*4} ' 
+				out += f'\n {sym.BOX1}{sym.BOX3*4} ' 
 			out += f'{Output.process_text(str(e[0]), 4)} {title} {freq} {day} {date} {e[3]}-{e[4]}'
 		out += task_head
 		for i,t in enumerate(tasks):
-			title = Output.process_text(t[1], 39)
+			title = Output.process_text(t[1], 37)
 			freq = Output.process_text(Output.char_to_freq[t[4]], 6)
 			day = Output.process_text(Output.int_to_days[t[2]], 5)
 			date = (t[5] if t[5] != None else '          ')
 			if i == lt:
-				out += f'\n{sym.BOX2}{sym.BOX3*4} '
+				out += f'\n {sym.BOX2}{sym.BOX3*4} '
 			else:
-				out += f'\n{sym.BOX1}{sym.BOX3*4} ' 
+				out += f'\n {sym.BOX1}{sym.BOX3*4} ' 
 			out += f'{Output.process_text(str(t[0]), 4)} {title} {freq} {day} {date} {t[3]}'
 		out += sym.default()
 		print(out, flush=True)
@@ -134,8 +134,33 @@ class Output:
 		else:
 			return title + ''.join(' ' for _ in range(max_len-len(title)))
 
-	def overview():
-		pass
+	def overview(events, tasks, tasks_done):
 
+		# TODO sym class \u2500...
+		# TODO more functions for 'left' + colors
+		# TODO less code per line
+
+		out = f'{sym.default()}{sym.CYAN}\u2500\u2500\u2500[ \u001b[1mToday\'s events{sym.default()}{sym.CYAN} ]' \
+			+ "".join("\u2500" for _ in range(0,59))
+		for i,e in enumerate(events):
+			if i == 0:
+				out += f'\n{sym.BLUE} {sym.ARROW} {sym.default()}'
+			else:
+				out += f'\n{sym.BLUE} {sym.ARROW} {sym.default()}{sym.DIM}'
+			out += f'{Output.process_text(e[1], 50)} [{e[5]}] {e[3]}-{e[4]}  (HHhMMm){sym.default()}'
 		
+		out += f'\n{sym.MAGENTA}\u2500\u2500\u2500[ \u001b[1mAll tasks{sym.default()}{sym.MAGENTA} ]' \
+			+ "".join("\u2500" for _ in range(0,63))
+		for i,t in enumerate(tasks):
+			weekday = Output.int_to_days[t[2]] if t[2] != None else '   '
+			left = f'{t[7]:02}d{t[8]:02}h{t[9]:02}m' if t[7] >= 0 else ' missed! '
+			out += f'\n{sym.RED} [ ]{sym.WHITE} {Output.process_text(t[1], 48)} [{t[4]}] ' \
+				+ f'{weekday} {t[3]} {sym.BRED}({left}){sym.default()}'
 
+		for i,t in enumerate(tasks_done):
+			weekday = Output.int_to_days[t[2]] if t[2] != None else '   '
+			left = f'{t[7]:02}d{t[8]:02}h{t[9]:02}m' if t[7] >= 0 else ' missed! '
+			out += f'\n{sym.GREEN} [{sym.DONE}]{sym.WHITE} {Output.process_text(t[1], 48)} [{t[4]}] ' \
+				+ sym.striken(f'{weekday} {t[3]} ({left})') + sym.default()
+
+		print(out, flush=True)

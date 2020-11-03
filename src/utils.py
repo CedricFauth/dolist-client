@@ -42,6 +42,7 @@ class Symbol:
 
 	RESET = "\u001b[0m"
 
+	ARROW = "\u25B6"
 	ERR = "\u2717"
 	DONE = "\u2714"
 	BOX1 = "\u251C"

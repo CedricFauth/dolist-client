@@ -25,6 +25,7 @@ SOFTWARE.
 import re
 import logging
 from cli import Output as O
+from datetime import datetime, date, timedelta
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
@@ -96,3 +97,43 @@ class Dataparser():
 			return (title, day ,t[0], t[1], f, date)
 		else:
 			return (title, day, time, f, date)
+	
+	@staticmethod
+	def date_of_next_weekday(weekday):
+		day = date.today()
+		while day.weekday() != weekday:
+			day += timedelta(1)
+		return day
+
+	@staticmethod
+	def delta_to_tupel(tdelta):
+		hours, rem = divmod(tdelta.seconds, 3600)
+		minutes = rem // 60 + 1
+		return (tdelta.days, hours, minutes, )
+
+	@staticmethod
+	def process_tasks(tasks):
+		task_list = []
+		daytime = datetime.today()
+		day = date.today()
+		for t in tasks:
+			left = None
+			if t[4] == 'd':
+				task_time = datetime.fromisoformat(f'{day.isoformat()} {t[3]}')
+				left = task_time - daytime
+				if left.days < 0:
+					left = left + timedelta(days=1)
+			elif t[4] == 'w':
+				next_date = Dataparser.date_of_next_weekday(t[2])
+				task_time = datetime.fromisoformat(f'{next_date.isoformat()} {t[3]}')
+				left = task_time - daytime
+			elif t[4] == 'o':
+				task_time = datetime.fromisoformat(f'{t[5]} {t[3]}')
+				left = task_time - daytime
+			task_list.append(t + Dataparser.delta_to_tupel(left))
+
+		def time_left_to_str(x):
+			x = int(f'{x[7]}{x[8]:02}{x[9]:02}')
+			return x
+
+		return sorted(task_list, key=time_left_to_str)

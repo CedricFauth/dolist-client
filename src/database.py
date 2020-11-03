@@ -100,28 +100,31 @@ class Database:
 		today = date.today()
 		weekday = today.weekday()
 
-		sql1 = '''SELECT * FROM events WHERE 
-		(day = ? AND freq = 'w') OR (date = ?) OR (freq = 'd');'''
-		sql2 = '''SELECT * FROM tasks;'''
-		cur = self.conn.cursor()
-		cur2 = self.conn.cursor()
-		cur.execute(sql1, (weekday, today.isoformat()))
-		cur2.execute(sql2)
-		event_rows = cur.fetchall()
-		task_rows = cur2.fetchall()
+		sql1 = '''SELECT * FROM events
+		WHERE (day = ? AND freq = 'w') OR (date = ?) OR (freq = 'd')
+		ORDER BY start_time ASC;'''
+		sql2 = '''SELECT * FROM tasks
+		WHERE done = ?;'''
 
-		return (event_rows, task_rows, )
+		cur = self.conn.cursor()
+		cur.execute(sql1, (weekday, today.isoformat()))
+		event_rows = cur.fetchall()
+		cur.execute(sql2, (0, ))
+		task_rows_todo = cur.fetchall()
+		cur.execute(sql2, (1, ))
+		task_rows_done = cur.fetchall()
+
+		return (event_rows, task_rows_todo, task_rows_done)
 		
 	def get_id_list(self):
 		sql1 = '''SELECT * FROM events;'''
 		sql2 = '''SELECT * FROM tasks;'''
 
 		cur = self.conn.cursor()
-		cur2 = self.conn.cursor()
 		cur.execute(sql1)
-		cur2.execute(sql2)
 		event_rows = cur.fetchall()
-		task_rows = cur2.fetchall()
+		cur.execute(sql2)
+		task_rows = cur.fetchall()
 
 		return (event_rows, task_rows, )
 
