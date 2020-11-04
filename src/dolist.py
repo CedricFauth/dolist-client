@@ -50,6 +50,12 @@ class Controller:
 		e = Dataparser.prepare_out_events(data[0])
 		t = Dataparser.prepare_out_tasks(data[1])
 		td = Dataparser.prepare_out_tasks(data[2])
+		
+		for i in t:
+			print(i)
+		print()
+		for i in td:
+			print(i)
 		Out.overview(e, t, td)
 		# TODO implement 'done'
 
@@ -81,18 +87,22 @@ class Controller:
 			Out.info(f"event {id} deleted")
 
 	def done(self, id):
+		# TODO implement
 		t = self.db.get_task_by(id)
 		print(t)
 		if not t:
 			Out.error(f'no task with id {id} found')
 			return 0
+		
 		if t[4] == 'w':
-			next_date = Dataparser.date_of_next_weekday(t[2])
-			task_time = f'{next_date.isoformat()} {t[3]}'
-		else:
-			task_time = f'{date.today().isoformat()} {t[3]}'
-		logger.info(f'set done {id} with done-date "{task_time}"')
-		self.db.set_done(id, task_time)
+			done_time = Dataparser.nearest_deadline(t)
+			print(done_time)
+			self.db.set_done(id, done_time)
+		#	# find date of weekday t[w] that is >= (after/eq) t[3]
+		#	done_time = f'{Dataparser.date_of_nearest_weekday(done_datetime, t[3])} {t[3]}'
+		#	logger.info(f'set done {id} with done-date "{done_time}"')
+		#	
+		else: raise NotImplementedError
 
 	def exit(self):
 		self.db.close()
@@ -107,7 +117,7 @@ def main():
 		return 0
 
 	c = Controller()
-	c.reset_done_tasks()
+	#c.reset_done_tasks()
 
 	if p.args.cmd == None:
 		c.show_overview()
