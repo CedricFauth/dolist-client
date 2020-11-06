@@ -86,12 +86,12 @@ class Database:
 		logger.info(f'inserted: {cur.lastrowid}')
 		return cur.lastrowid
 
-	def new_task(self,title,day,time,freq,date,done=0):
+	def new_task(self,title,day,time,freq,date,done_on=None,done=0):
 		sql = ''' INSERT INTO tasks 
-		(title,day,time,freq,date,done)
-        VALUES(?,?,?,?,?,?); '''
+		(title,day,time,freq,date,done,done_on)
+        VALUES(?,?,?,?,?,?,?); '''
 		cur = self.conn.cursor()
-		cur.execute(sql, (title,day,time,freq,date,done,))
+		cur.execute(sql, (title,day,time,freq,date,done,done_on,))
 		self.conn.commit()
 		logger.info(f'inserted: {cur.lastrowid}')
 		return cur.lastrowid

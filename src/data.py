@@ -62,7 +62,7 @@ class Dataparser():
 					return False
 			# if weekly: day needs to be set
 			else:
-				if not args.d or not re.match('^(mon|tue|wed|thur|fri|sat|sun)$', args.d):
+				if not args.d or not re.match('^(mon|tue|wed|thu|fri|sat|sun)$', args.d):
 					O.error(f'wrong day format: {args.d}')
 					return False
 			
@@ -83,20 +83,24 @@ class Dataparser():
 		'''
 		weekly event data gets prepared for database
 		'''
-
 		f = freq[0]
 		day = None
 		date = None
+
 		if f == 'o':
 			date = day_date
 		elif f == 'w':
 			day = Dataparser.days_to_int[day_date]
-		
 		if c =='e':
 			t = time.split('-')
 			return (title, day ,t[0], t[1], f, date)
 		else:
-			return (title, day, time, f, date)
+			tmp = (0, title, day, time, f, date, )
+			previous_date = Dataparser.last_deadline(tmp)
+			if previous_date:
+				return (title, day, time, f, date, previous_date.strftime('%Y-%m-%d %H:%M'))
+			else:
+				return (title, day, time, f, date)
 	
 	@staticmethod
 	def nearest_deadline(task):
@@ -119,31 +123,52 @@ class Dataparser():
 					if deadline_datetime > current_datetime:
 						break
 				deadline_datetime += timedelta(1)
+			# check if last deadline was missed
 			if task[7]:
 				last_done = datetime.fromisoformat(task[7])
 				if deadline_datetime - last_done > timedelta(7):
-					deadline_datetime -= timedelta(1)
+					deadline_datetime -= timedelta(7)
 		elif freq == 'd':
 			if deadline_datetime <= current_datetime:
 				deadline_datetime += timedelta(1)
+			# check if last deadline was missed
 			if task[7]:
 				last_done = datetime.fromisoformat(task[7])
 				if deadline_datetime - last_done > timedelta(1):
-					print(deadline_datetime - last_done)
 					deadline_datetime -= timedelta(1)
 		else:
 			deadline_datetime = datetime.fromisoformat(f'{task[5]} {task[3]}')
 
-		print(deadline_datetime)
+		logger.debug(f'nearest_deadline {deadline_datetime} for {task}')
 
 		return deadline_datetime
 	
 	@staticmethod
-	def date_of_last_weekday(weekday):
-		day = date.today()
-		while day.weekday() != weekday:
-			day -= timedelta(1)
-		return day
+	def last_deadline(task):
+		freq = task[4]
+		# date now
+		dt = datetime.now()
+		date_str = dt.date().isoformat()
+		# time now
+		current_time_str = dt.strftime("%H:%M")
+		current_datetime = datetime.fromisoformat(f'{date_str} {current_time_str}')
+		deadline_datetime = datetime.fromisoformat(f'{date_str} {task[3]}')
+
+		if freq == 'w':
+			while 1:
+				if deadline_datetime.weekday() == task[2]:
+					if deadline_datetime < current_datetime:
+						break
+				deadline_datetime -= timedelta(1)
+		elif freq == 'd':
+			if deadline_datetime > current_datetime:
+				deadline_datetime -= timedelta(1)
+		else:
+			deadline_datetime = None
+
+		logger.debug(f'last_deadline {deadline_datetime} for {task}')
+
+		return deadline_datetime
 
 	@staticmethod
 	def delta_to_tupel(tdelta):
@@ -182,6 +207,7 @@ class Dataparser():
 			deadline_datetime = Dataparser.nearest_deadline(t)
 			logger.debug(deadline_datetime)
 			left = deadline_datetime - daytime
+			print(f'left{left}')
 
 			task_list.append(t + Dataparser.delta_to_tupel(left))
 
@@ -203,13 +229,14 @@ class Dataparser():
 		for t in tasks_done:
 			left = None
 			if t[4] != 'o':
-				task_time = datetime.fromisoformat(f'{day.isoformat()} {t[3]}')
+				task_time = datetime.fromisoformat(t[7])
 				left = task_time - daytime
 				if left.days < 0:
+					task_ids.append(t[0])
 					# check if last-done is before last due: reset
-					if datetime.fromisoformat(t[7]) == task_time:
-						logger.info(f'{t[1]} can be deleted')
-						task_ids.append(t[0])
+					#if datetime.fromisoformat(t[7]) == task_time:
+					#	logger.info(f'{t[1]} can be deleted')
+					#	task_ids.append(t[0])
 		return task_ids
 
 		# TODO task for next week/day cannot be done on last due day

@@ -94,8 +94,8 @@ class Controller:
 			Out.error(f'no task with id {id} found')
 			return 0
 		
-		if t[4] == 'w':
-			done_time = Dataparser.nearest_deadline(t)
+		if t[4] != 'o':
+			done_time = Dataparser.nearest_deadline(t).strftime('%Y-%m-%d %H:%M')
 			print(done_time)
 			self.db.set_done(id, done_time)
 		#	# find date of weekday t[w] that is >= (after/eq) t[3]
@@ -117,7 +117,7 @@ def main():
 		return 0
 
 	c = Controller()
-	#c.reset_done_tasks()
+	c.reset_done_tasks()
 
 	if p.args.cmd == None:
 		c.show_overview()
