@@ -51,11 +51,11 @@ class Controller:
 		t = Dataparser.prepare_out_tasks(data[1])
 		td = Dataparser.prepare_out_tasks(data[2])
 		
-		for i in t:
-			print(i)
-		print()
-		for i in td:
-			print(i)
+		#for i in t:
+		#	print(i)
+		#print()
+		#for i in td:
+		#	print(i)
 		Out.overview(e, t, td)
 		# TODO implement 'done'
 
@@ -94,15 +94,15 @@ class Controller:
 			Out.error(f'no task with id {id} found')
 			return 0
 		
-		if t[4] != 'o':
-			done_time = Dataparser.nearest_deadline(t).strftime('%Y-%m-%d %H:%M')
-			print(done_time)
-			self.db.set_done(id, done_time)
+		#if t[4] != 'o':
+		done_time = Dataparser.nearest_deadline(t).strftime('%Y-%m-%d %H:%M')
+		print(done_time)
+		self.db.set_done(id, done_time)
 		#	# find date of weekday t[w] that is >= (after/eq) t[3]
 		#	done_time = f'{Dataparser.date_of_nearest_weekday(done_datetime, t[3])} {t[3]}'
 		#	logger.info(f'set done {id} with done-date "{done_time}"')
 		#	
-		else: raise NotImplementedError
+		#else: raise NotImplementedError
 
 	def exit(self):
 		self.db.close()

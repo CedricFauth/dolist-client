@@ -185,10 +185,15 @@ class Dataparser():
 		daytime = datetime.today()
 		day = date.today()
 		for e in events:
-			task_time = datetime.fromisoformat(f'{day.isoformat()} {e[3]}')
-			left = task_time - daytime
-			#print(f'{e[1]} : {Dataparser.delta_to_tupel(left)}')
-			event_list.append(e + Dataparser.delta_to_tupel(left))
+			start_time = datetime.fromisoformat(f'{day.isoformat()} {e[3]}')
+			end_time = datetime.fromisoformat(f'{day.isoformat()} {e[4]}')
+			dstart = start_time - daytime
+			dend = end_time - daytime
+			dstart = Dataparser.delta_to_tupel(dstart)
+			if dend.days >= 0:
+				event_list.append(e+dstart+(True, ))
+			else:
+				event_list.append(e+dstart+(False, ))
 		return event_list
 		
 
@@ -228,15 +233,18 @@ class Dataparser():
 		day = date.today()
 		for t in tasks_done:
 			left = None
-			if t[4] != 'o':
+			if t[7] != None:
 				task_time = datetime.fromisoformat(t[7])
 				left = task_time - daytime
 				if left.days < 0:
-					task_ids.append(t[0])
+					task_ids.append((t[0],t[4], ))
+			#elif t[4] == 'o' and t[7] != None:
+			#	task_ids.append((t[0],t[4], ))
 					# check if last-done is before last due: reset
 					#if datetime.fromisoformat(t[7]) == task_time:
 					#	logger.info(f'{t[1]} can be deleted')
 					#	task_ids.append(t[0])
+			# TODO once = remove task if donetime is in the past
 		return task_ids
 
 		# TODO task for next week/day cannot be done on last due day

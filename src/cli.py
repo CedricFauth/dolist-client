@@ -147,9 +147,11 @@ class Output:
 			return ''.join(' ' for _ in range(max_len-len(title))) + title
 
 	@staticmethod
-	def format_time(days, hours, minutes):
+	def format_time(days, hours, minutes, now=False):
 		if days < 0:
-			return 'missed!'
+			if now:
+				return f'(now)'
+			return '(missed)'
 		elif days == 0 and hours == 0:
 			return f'({minutes}m)'
 		elif days == 0:
@@ -162,14 +164,14 @@ class Output:
 		"""
 		colors a time string
 		"""
-		if days < 0:
+		if days < 0: # missed
 			return f'{sym.RED}{time_string}'
-		elif days == 0 and hours == 0:
+		elif days == 0 and hours < 2: # less than 2h left
 			return f'{sym.BRED}{time_string}'
-		elif days == 0:
+		elif days == 0: # less than one day daft
 			return f'{sym.YELLOW}{time_string}'
 		else:
-			return f'{time_string}'
+			return f'{sym.default()}{time_string}'
 
 	@staticmethod
 	def overview(events, tasks, tasks_done):
@@ -182,15 +184,17 @@ class Output:
 			+ f'{sym.HLINE*59}'
 		i = 0
 		for e in events:
-			if e[7] < 0:
+			if e[7] < 0 and e[10] == False:
 				continue
-			if i == 0:
+			title = Output.align_text_left(e[1], 50)
+			if i == 0 or (e[7] < 0 and e[10] == True):
 				out += f'\n{sym.BLUE} {sym.ARROW} {sym.default()}'
+				time_left = Output.align_text_right(f'{Output.format_time(*e[7:11])}',9)
+				out += f'{title} [{e[5]}] {e[3]}-{e[4]} {sym.CYAN}{time_left}{sym.default()}'
 			else:
 				out += f'\n{sym.BLUE} {sym.ARROW} {sym.default()}{sym.DIM}'
-			title = Output.align_text_left(e[1], 50)
-			time_left = Output.align_text_right(f'{Output.format_time(*e[7:10])}',9)
-			out += f'{title} [{e[5]}] {e[3]}-{e[4]} {time_left}{sym.default()}'
+				time_left = Output.align_text_right(f'{Output.format_time(*e[7:10])}',9)
+				out += f'{title} [{e[5]}] {e[3]}-{e[4]} {time_left}{sym.default()}'
 			i += 1
 
 		out += f'\n{sym.MAGENTA}{sym.HLINE*3}[ \u001b[1mAll tasks{sym.default()}{sym.MAGENTA} ]' \
@@ -210,7 +214,7 @@ class Output:
 			title = Output.align_text_left(t[1], 48)
 			weekday = Output.align_text_left(Output.int_to_days[t[2]], 3).upper()
 			time_left = Output.align_text_right(f'{Output.format_time(*t[8:11])}',11)
-			out += f'\n{sym.GREEN} [{sym.DONE}] {sym.default()}{title} [{t[4]}] ' \
+			out += f'\n{sym.GREEN} [{sym.DONE}] {title} {sym.default()}[{t[4]}] ' \
 				+ sym.striken(f'{weekday} {t[3]} {time_left}') + sym.default()
-
+		out += sym.default()
 		print(out, flush=True)

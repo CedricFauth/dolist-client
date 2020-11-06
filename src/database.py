@@ -163,10 +163,14 @@ class Database:
 
 	def reset_done(self, reset_id_list):
 		sql1 = '''UPDATE tasks SET done = 0 WHERE id = ?;'''
+		sql2 = '''DELETE FROM tasks WHERE id = ?;'''
 		cur = self.conn.cursor()
 		print(reset_id_list)
-		for id in reset_id_list:
-			cur.execute(sql1, (id, ))
+		for id,freq in reset_id_list:
+			if freq == 'o': 
+				cur.execute(sql2, (id, ))
+			else: 
+				cur.execute(sql1, (id, ))
 			logger.info(f'reset: done=0 at id {id}')
 		self.conn.commit()
 
