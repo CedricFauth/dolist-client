@@ -30,7 +30,7 @@ import os
 
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.ERROR)
 
 class Database:
 	def __init__(self):
@@ -168,7 +168,7 @@ class Database:
 		sql1 = '''UPDATE tasks SET done = 0 WHERE id = ?;'''
 		sql2 = '''DELETE FROM tasks WHERE id = ?;'''
 		cur = self.conn.cursor()
-		print(reset_id_list)
+		logger.info(reset_id_list)
 		for id,freq in reset_id_list:
 			if freq == 'o': 
 				cur.execute(sql2, (id, ))

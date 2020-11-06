@@ -27,7 +27,7 @@ import logging
 from utils import Symbol as sym
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.ERROR)
 
 class CLI_Parser:
 
@@ -180,8 +180,11 @@ class Output:
 		# TODO more functions for 'left' + colors
 		# TODO less code per line
 
-		out = f'{sym.default()}{sym.CYAN}{sym.HLINE*3}[ \u001b[1mToday\'s events{sym.default()}{sym.CYAN} ]' \
-			+ f'{sym.HLINE*59}'
+		out = f'{sym.default()}{sym.CYAN}{sym.HLINE*3}[ \u001b[1mToday\'s Events{sym.default()}{sym.CYAN} ]' \
+			+ f'{sym.HLINE*59}{sym.default()}'
+		
+		if len(events) == 0:
+			out += "   No events found for today. Use 'dl event -h' and add new events :)"
 		i = 0
 		for e in events:
 			if e[7] < 0 and e[10] == False:
@@ -197,8 +200,13 @@ class Output:
 				out += f'{title} [{e[5]}] {e[3]}-{e[4]} {time_left}{sym.default()}'
 			i += 1
 
-		out += f'\n{sym.MAGENTA}{sym.HLINE*3}[ \u001b[1mAll tasks{sym.default()}{sym.MAGENTA} ]' \
-			+ "".join("\u2500" for _ in range(0,64))
+		out += f'\n{sym.MAGENTA}{sym.HLINE*3}[ \u001b[1mYour Tasks{sym.default()}{sym.MAGENTA} ]' \
+			+ "\u2500"*63 + sym.default()
+
+		if len(tasks) == 0 and len(tasks_done) == 0:
+			out += "   No tasks found. Use 'dl task -h' and add new tasks ;)"
+
+		
 		for i,t in enumerate(tasks):
 			title = Output.align_text_left(t[1], 48)
 			weekday = Output.align_text_left(Output.int_to_days[t[2]], 3).upper()

@@ -28,7 +28,7 @@ from cli import Output as O
 from datetime import datetime, date, timedelta
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.ERROR)
 
 
 class Dataparser():
@@ -112,10 +112,6 @@ class Dataparser():
 		current_time_str = dt.strftime("%H:%M")
 		current_datetime = datetime.fromisoformat(f'{date_str} {current_time_str}')
 		deadline_datetime = datetime.fromisoformat(f'{date_str} {task[3]}')
-		
-		print(current_time_str)
-		print(current_datetime)
-		print(deadline_datetime)
 
 		if freq == 'w':
 			while 1:
@@ -212,7 +208,7 @@ class Dataparser():
 			deadline_datetime = Dataparser.nearest_deadline(t)
 			logger.debug(deadline_datetime)
 			left = deadline_datetime - daytime
-			print(f'left{left}')
+			logger.debug(f'left{left}')
 
 			task_list.append(t + Dataparser.delta_to_tupel(left))
 
