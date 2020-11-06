@@ -26,14 +26,17 @@ import sqlite3
 from os import path
 from datetime import datetime, date
 import logging
+import os
+
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
 
 class Database:
 	def __init__(self):
-		
-		self.path = "./data.db"
+		self.dirname = os.path.dirname(__file__)
+		self.path = os.path.join(self.dirname[:-3], 'data.db')
+		#self.path = "./data.db"
 		self.conn = None
 		self.reset = False
 		if not path.exists(self.path):
