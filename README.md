@@ -4,6 +4,7 @@ A lecture, event, and assignment manager.
 
 ## Run the program:
 
+**You need Python 3 or higher in order to run the program.** \
 Check out the [Installation Guide](/INSTALL.md).
 
 ## Commands:
