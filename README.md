@@ -7,6 +7,8 @@ A lecture, event, and assignment manager.
 **You need Python 3 or higher in order to run the program.** \
 Check out the [Installation Guide](/INSTALL.md).
 
+![Screenshot 2020-11-07 at 16 38 14](https://user-images.githubusercontent.com/25117793/98445362-b172fe80-2117-11eb-8a59-952643a5c2f4.png)
+
 ## Commands:
 
 ### Show today's overview
