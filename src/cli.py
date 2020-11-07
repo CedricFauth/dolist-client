@@ -155,9 +155,9 @@ class Output:
 		elif days == 0 and hours == 0:
 			return f'({minutes}m)'
 		elif days == 0:
-			return f'({hours}h{minutes}m)'
+			return f'({hours}h{minutes:02}m)'
 		else:
-			return f'({days}d{hours}h{minutes}m)'
+			return f'({days}d{hours:02}h{minutes:02}m)'
 
 	@staticmethod
 	def color_time(days, hours, minutes, time_string):
