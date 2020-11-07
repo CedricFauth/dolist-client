@@ -28,6 +28,7 @@ mkdir $HOME/.dolist
 cp -R src/ $HOME/.dolist/bin
 # make alias
 echo "alias dl=\"python3 $HOME/.dolist/bin/dolist.py\"" >> $HOME/$name
+echo "alias dlimport=\"python3 $HOME/.dolist/bin/csv_import.py\"" >> $HOME/$name
 
 echo "$GRE[DONE]$RES Installation successful."
 echo "$GRE[DONE]$RES Please run '${MAG}source $HOME/$name$RES' to finish the installation or ${BRED}close and reopen your terminal.$RES"
