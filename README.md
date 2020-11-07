@@ -10,7 +10,12 @@ A lecture, event, and assignment manager.
 Check out the [Installation Guide](/INSTALL.md).
 
 ## Commands:
-
+### Import events and tasks from a .csv file
+The program comes with a tool called dlimport that you can use to import data from CSV files. The CSV file needs to be semicolon separated. This repo contains an ```example.csv``` file that you can modify by your needs. After setting up the data you can run this command to import the data:
+``` 
+dlimport example.csv 
+```
+(replace example.csv with the path to your csv file if you need)
 ### Show today's overview
 This shows all events of today and all tasks.
 ```

@@ -1,0 +1,14 @@
+events;frequency;day_or_date;start_time;end_time
+;;;;
+Test Lecture 1;weekly;mon;00:00;00:40
+Test Lecture 1;weekly;tue;13:37;14:14
+Lecture 3;once;2020-12-24;22:24;23:00
+Lecture 4;once;2020-12-31;06:30;08:00
+Lecture 5;daily;;14:42;15:52
+Lecture 6;daily;;09:07;11:05
+;;;;
+tasks;frequency;day_or_date;deadline;
+;;;;
+Assignment 1;weekly;tue;23:59;
+Assignment 2;daily;;09:05;
+Task 3;once;2020-10-31;10:25;
