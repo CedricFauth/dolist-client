@@ -164,11 +164,11 @@ class Output:
 		"""
 		colors a time string
 		"""
-		if days < 0: # missed
+		if days < 1: # missed
 			return f'{sym.RED}{time_string}'
-		elif days == 0 and hours < 2: # less than 2h left
+		elif days == 0 and hours < 3: # less than 2h left
 			return f'{sym.BRED}{time_string}'
-		elif days == 0: # less than one day daft
+		elif days < 3: # less than one day daft
 			return f'{sym.YELLOW}{time_string}'
 		else:
 			return f'{sym.default()}{time_string}'
@@ -184,7 +184,7 @@ class Output:
 			+ f'{sym.HLINE*59}{sym.default()}'
 		
 		if len(events) == 0:
-			out += "   No events found for today. Use 'dl event -h' and add new events :)"
+			out += "\n   No events found for today. Use 'dl event -h' and add new events :)"
 		i = 0
 		for e in events:
 			if e[7] < 0 and e[10] == False:
@@ -204,7 +204,7 @@ class Output:
 			+ "\u2500"*63 + sym.default()
 
 		if len(tasks) == 0 and len(tasks_done) == 0:
-			out += "   No tasks found. Use 'dl task -h' and add new tasks ;)"
+			out += "\n   No tasks found. Use 'dl task -h' and add new tasks ;)"
 
 		
 		for i,t in enumerate(tasks):
