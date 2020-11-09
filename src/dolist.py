@@ -32,98 +32,98 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.ERROR)
 
 class Controller:
-	def __init__(self):
-		Out.open()
-		self.db = Database()
+    def __init__(self):
+        Out.open()
+        self.db = Database()
 
-	def reset_done_tasks(self):
-		data = self.db.get_done_tasks()
-		reset_id_list = Dataparser.get_reset_ids(data)
-		self.db.reset_done(reset_id_list)
-	
-	# TODO implement 'done' and set done_on (duedate + duetime)
+    def reset_done_tasks(self):
+        data = self.db.get_done_tasks()
+        reset_id_list = Dataparser.get_reset_ids(data)
+        self.db.reset_done(reset_id_list)
+    
+    # TODO implement 'done' and set done_on (duedate + duetime)
 
-	def show_overview(self):
-		logger.info('cmd: show overview')
-		# TODO process_events
-		data = self.db.get_overview_data()
-		e = Dataparser.prepare_out_events(data[0])
-		t = Dataparser.prepare_out_tasks(data[1])
-		td = Dataparser.prepare_out_tasks(data[2])
-		
-		Out.overview(e, t, td)
+    def show_overview(self):
+        logger.info('cmd: show overview')
+        # TODO process_events
+        data = self.db.get_overview_data()
+        e = Dataparser.prepare_out_events(data[0])
+        t = Dataparser.prepare_out_tasks(data[1])
+        td = Dataparser.prepare_out_tasks(data[2])
+        
+        Out.overview(e, t, td)
 
-	def add_event(self, title, day, timeFromTo, freq):
-		logger.info('cmd: event')
+    def add_event(self, title, day, timeFromTo, freq):
+        logger.info('cmd: event')
 
-		args = Dataparser.parse('e', title, day, timeFromTo, freq)
-		self.db.new_event(*args) # tupel to parameters (*) 
+        args = Dataparser.parse('e', title, day, timeFromTo, freq)
+        self.db.new_event(*args) # tupel to parameters (*) 
 
-		Out.info("event added")
+        Out.info("event added")
 
-	def add_task(self, title, day, time, freq):
-		logger.info('cmd: task')
-		args = Dataparser.parse('t', title, day, time, freq)
-		self.db.new_task(*args) # tupel to parameters (*) 
-		Out.info("task added")
+    def add_task(self, title, day, time, freq):
+        logger.info('cmd: task')
+        args = Dataparser.parse('t', title, day, time, freq)
+        self.db.new_task(*args) # tupel to parameters (*) 
+        Out.info("task added")
 
-	def list_ids(self):
-		logger.info(f'cmd: list_ids')
-		data = self.db.get_id_list()
-		Out.list_all(data[0], data[1])
+    def list_ids(self):
+        logger.info(f'cmd: list_ids')
+        data = self.db.get_id_list()
+        Out.list_all(data[0], data[1])
 
-	def remove_by_id(self, id, typ):
-		logger.info(f'cmd: remove_by_id -{typ} {id}')
-		self.db.delete_data(id, typ)
-		if typ == 't':
-			Out.info(f"task {id} deleted")
-		elif typ == 'e':
-			Out.info(f"event {id} deleted")
+    def remove_by_id(self, id, typ):
+        logger.info(f'cmd: remove_by_id -{typ} {id}')
+        self.db.delete_data(id, typ)
+        if typ == 't':
+            Out.info(f"task {id} deleted")
+        elif typ == 'e':
+            Out.info(f"event {id} deleted")
 
-	def done(self, id):
-		t = self.db.get_task_by(id)
-		if not t:
-			Out.error(f'no task with id {id} found')
-			return 0
+    def done(self, id):
+        t = self.db.get_task_by(id)
+        if not t:
+            Out.error(f'no task with id {id} found')
+            return 0
 
-		done_time = Dataparser.nearest_deadline(t).strftime('%Y-%m-%d %H:%M')
-		Out.info(f'task {id} done until {done_time}')
-		self.db.set_done(id, done_time)
+        done_time = Dataparser.nearest_deadline(t).strftime('%Y-%m-%d %H:%M')
+        Out.info(f'task {id} done until {done_time}')
+        self.db.set_done(id, done_time)
 
-	def exit(self):
-		self.db.close()
-		Out.close()
+    def exit(self):
+        self.db.close()
+        Out.close()
 
 
 def main():
-	# parse cli
-	p = CLI_Parser()
+    # parse cli
+    p = CLI_Parser()
 
-	if not Dataparser.validate(p.args):
-		return 0
+    if not Dataparser.validate(p.args):
+        return 0
 
-	c = Controller()
-	c.reset_done_tasks()
+    c = Controller()
+    c.reset_done_tasks()
 
-	if p.args.cmd == None:
-		c.show_overview()
-	elif p.args.cmd == 'event':
-		c.add_event(p.args.title, p.args.d, p.args.t, p.args.f)
-	elif p.args.cmd == 'task':
-		c.add_task(p.args.title, p.args.d, p.args.t, p.args.f)
-	elif p.args.cmd == 'rm' and p.args.t:
-		c.remove_by_id(p.args.id, 't')
-	elif p.args.cmd == 'rm' and p.args.e:
-		c.remove_by_id(p.args.id, 'e')
-	elif p.args.cmd == 'ls':
-		c.list_ids()
-	elif p.args.cmd == 'done':
-		c.done(p.args.task_id)
-	
-	c.exit()
+    if p.args.cmd == None:
+        c.show_overview()
+    elif p.args.cmd == 'event':
+        c.add_event(p.args.title, p.args.d, p.args.t, p.args.f)
+    elif p.args.cmd == 'task':
+        c.add_task(p.args.title, p.args.d, p.args.t, p.args.f)
+    elif p.args.cmd == 'rm' and p.args.t:
+        c.remove_by_id(p.args.id, 't')
+    elif p.args.cmd == 'rm' and p.args.e:
+        c.remove_by_id(p.args.id, 'e')
+    elif p.args.cmd == 'ls':
+        c.list_ids()
+    elif p.args.cmd == 'done':
+        c.done(p.args.task_id)
+    
+    c.exit()
 
-	return 0
-	
+    return 0
+    
 
 if __name__ == '__main__':
-	main()
+    main()
