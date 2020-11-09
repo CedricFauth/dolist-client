@@ -240,7 +240,4 @@ class Dataparser():
                     #if datetime.fromisoformat(t[7]) == task_time:
                     #	logger.info(f'{t[1]} can be deleted')
                     #	task_ids.append(t[0])
-            # TODO once = remove task if donetime is in the past
         return task_ids
-
-        # TODO task for next week/day cannot be done on last due day

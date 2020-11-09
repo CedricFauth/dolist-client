@@ -92,7 +92,6 @@ class Output:
         """
         print(f' {sym.RED}{sym.ERR}{sym.default()} {msg}')
     
-    # TODO SHOW ALL PARAMETERS
     @staticmethod
     def list_all(events, tasks):
         le = len(events) - 1

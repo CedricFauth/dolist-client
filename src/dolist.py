@@ -41,11 +41,8 @@ class Controller:
         reset_id_list = Dataparser.get_reset_ids(data)
         self.db.reset_done(reset_id_list)
     
-    # TODO implement 'done' and set done_on (duedate + duetime)
-
     def show_overview(self):
         logger.info('cmd: show overview')
-        # TODO process_events
         data = self.db.get_overview_data()
         e = Dataparser.prepare_out_events(data[0])
         t = Dataparser.prepare_out_tasks(data[1])
