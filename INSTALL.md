@@ -6,7 +6,7 @@
 **Or clone** the repo:
 ```
 git clone https://github.com/CedricFauth/dolist-client.git
-cd dolist/
+cd dolist-client/
 ```
 
 ### 2.
